@@ -19,9 +19,11 @@ class ResPartner(models.Model):
     risk_invoice_draft_include = fields.Boolean(
         string='Include Draft Invoices', help='Full risk computation')
     risk_invoice_draft_limit = fields.Monetary(
-        string='Limit In Draft Invoices', help='Set 0 if it is not locked')
+        string='Limit In Draft Invoices',
+        company_dependent=True,
+        help='Set 0 if it is not locked')
     risk_invoice_draft = fields.Monetary(
-        compute='_compute_risk_invoice', store=True,
+        compute='_compute_risk_invoice',
         string='Total Draft Invoices',
         help='Total amount of invoices in Draft or Pro-forma state')
     risk_invoice_open_include = fields.Boolean(
@@ -33,10 +35,11 @@ class ResPartner(models.Model):
     )
     risk_invoice_open_limit = fields.Monetary(
         string='Limit In Open Invoices/Principal Balance',
+        company_dependent=True,
         help='Set 0 if it is not locked',
     )
     risk_invoice_open = fields.Monetary(
-        compute='_compute_risk_account_amount', store=True,
+        compute='_compute_risk_account_amount',
         string='Total Open Invoices/Principal Balance',
         help='Residual amount of move lines not reconciled with the same '
              'account that is set as partner receivable and date maturity '
@@ -51,10 +54,11 @@ class ResPartner(models.Model):
     )
     risk_invoice_unpaid_limit = fields.Monetary(
         string='Limit In Unpaid Invoices/Principal Balance',
+        company_dependent=True,
         help='Set 0 if it is not locked',
     )
     risk_invoice_unpaid = fields.Monetary(
-        compute='_compute_risk_account_amount', store=True,
+        compute='_compute_risk_account_amount',
         string='Total Unpaid Invoices/Principal Balance',
         help='Residual amount of move lines not reconciled with the same '
              'account that is set as partner receivable and date maturity '
@@ -69,10 +73,11 @@ class ResPartner(models.Model):
     )
     risk_account_amount_limit = fields.Monetary(
         string='Limit Other Account Open Amount',
+        company_dependent=True,
         help='Set 0 if it is not locked',
     )
     risk_account_amount = fields.Monetary(
-        compute='_compute_risk_account_amount', store=True,
+        compute='_compute_risk_account_amount',
         string='Total Other Account Open Amount',
         help='Residual amount of move lines not reconciled with distinct '
              'account that is set as partner receivable and date maturity '
@@ -87,10 +92,11 @@ class ResPartner(models.Model):
     )
     risk_account_amount_unpaid_limit = fields.Monetary(
         string='Limit Other Account Unpaid Amount',
+        company_dependent=True,
         help='Set 0 if it is not locked',
     )
     risk_account_amount_unpaid = fields.Monetary(
-        compute='_compute_risk_account_amount', store=True,
+        compute='_compute_risk_account_amount',
         string='Total Other Account Unpaid Amount',
         help='Residual amount of move lines not reconciled with distinct '
              'account that is set as partner receivable and date maturity '
@@ -103,9 +109,9 @@ class ResPartner(models.Model):
         compute='_compute_risk_exception',
         string='Risk Exception',
         help='It Indicate if partner risk exceeded')
-    credit_policy = fields.Char()
+    credit_policy = fields.Char(company_dependent=True)
     risk_allow_edit = fields.Boolean(compute='_compute_risk_allow_edit')
-    credit_limit = fields.Float(track_visibility='onchange')
+    credit_limit = fields.Float(company_dependent=True,track_visibility='onchange')
 
     @api.multi
     def _compute_risk_allow_edit(self):
@@ -114,11 +120,6 @@ class ResPartner(models.Model):
             partner.risk_allow_edit = is_editable
 
     @api.multi
-    @api.depends(
-        'customer', 'invoice_ids', 'invoice_ids.state',
-        'invoice_ids.amount_total',
-        'child_ids.invoice_ids', 'child_ids.invoice_ids.state',
-        'child_ids.invoice_ids.amount_total')
     def _compute_risk_invoice(self):
         all_partners_and_children = {}
         all_partner_ids = []
@@ -130,10 +131,12 @@ class ResPartner(models.Model):
             all_partner_ids += all_partners_and_children[partner]
         if not all_partner_ids:
             return
-        total_group = self.env['account.invoice'].sudo().read_group(
+        total_group = self.env['account.invoice'].sudo().\
+            with_context(company_id=self.env.user.company_id.id).read_group(
             [('type', 'in', ['out_invoice', 'out_refund']),
              ('state', 'in', ['draft', 'proforma', 'proforma2']),
-             ('partner_id', 'in', self.ids)],
+             ('partner_id', 'in', self.ids),
+             ('company_id', '=', self.env.user.company_id.id)],
             ['partner_id', 'amount_total'],
             ['partner_id'])
         for partner, child_ids in all_partners_and_children.items():
@@ -148,25 +151,25 @@ class ResPartner(models.Model):
             'open': {
                 'domain': [('reconciled', '=', False),
                            ('account_id.internal_type', '=', 'receivable'),
-                           ('date_maturity', '>=', max_date)],
+                           ('date_maturity', '>=', max_date),
+                           ('company_id', '=', self.env.user.company_id.id)],
                 'fields': ['partner_id', 'account_id', 'amount_residual'],
                 'group_by': ['partner_id', 'account_id']
             },
             'unpaid': {
                 'domain': [('reconciled', '=', False),
                            ('account_id.internal_type', '=', 'receivable'),
-                           ('date_maturity', '<', max_date)],
+                           ('date_maturity', '<', max_date),
+                           ('company_id', '=', self.env.user.company_id.id)],
                 'fields': ['partner_id', 'account_id', 'amount_residual'],
                 'group_by': ['partner_id', 'account_id']
                 }
         }
 
     @api.multi
-    @api.depends('move_line_ids.amount_residual',
-                 'move_line_ids.date_maturity',
-                 'company_id.invoice_unpaid_margin')
     def _compute_risk_account_amount(self):
-        AccountMoveLine = self.env['account.move.line'].sudo()
+        AccountMoveLine = self.env['account.move.line'].sudo().\
+            with_context(company_id=self.env.user.company_id.id)
         customers = self.filtered(lambda x: x.customer and not x.parent_id)
         if not customers:
             return
@@ -206,7 +209,6 @@ class ResPartner(models.Model):
         return vals
 
     @api.multi
-    @api.depends(lambda x: x._get_depends_compute_risk_exception())
     def _compute_risk_exception(self):
         risk_field_list = self._risk_field_list()
         for partner in self.filtered('customer'):
@@ -257,7 +259,8 @@ class ResPartner(models.Model):
         ConfigParameter = self.env['ir.config_parameter']
         last_check = ConfigParameter.get_param(
             'partner_financial_risk.last_check', default='2016-01-01')
-        groups = self.env['account.move.line'].sudo().read_group(
+        groups = self.env['account.move.line'].sudo().\
+            with_context(company_id=self.env.user.company_id.id).read_group(
             [('reconciled', '=', False),
              ('partner_id', '!=', False),
              ('account_id.internal_type', '=', 'receivable'),

@@ -11,21 +11,23 @@ class ResPartner(models.Model):
     risk_sale_order_include = fields.Boolean(
         string='Include Sales Orders', help='Full risk computation')
     risk_sale_order_limit = fields.Monetary(
-        string='Limit Sales Orders', help='Set 0 if it is not locked')
+        string='Limit Sales Orders',
+        company_dependent=True,
+        help='Set 0 if it is not locked')
     risk_sale_order = fields.Monetary(
-        compute='_compute_risk_sale_order', store=True,
+        compute='_compute_risk_sale_order',
         string='Total Sales Orders Not Invoiced',
         help='Total not invoiced of sales orders in Sale Order state')
 
     @api.multi
-    @api.depends('sale_order_ids', 'sale_order_ids.invoice_pending_amount',
-                 'child_ids.sale_order_ids',
-                 'child_ids.sale_order_ids.invoice_pending_amount')
     def _compute_risk_sale_order(self):
         customers = self.filtered('customer')
         partners = customers | customers.mapped('child_ids')
         orders_group = self.env['sale.order'].read_group(
-            [('state', '=', 'sale'), ('partner_id', 'in', partners.ids)],
+            [('state', '=', 'sale'),
+             ('partner_id', 'in', partners.ids),
+             ('company_id', '=', self.env.user.company_id.id)
+             ],
             ['partner_id', 'invoice_pending_amount'],
             ['partner_id'])
         for partner in customers:
