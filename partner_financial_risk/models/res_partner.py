@@ -17,7 +17,9 @@ class ResPartner(models.Model):
         string='Account Moves'
     )
     risk_invoice_draft_include = fields.Boolean(
-        string='Include Draft Invoices', help='Full risk computation')
+        string='Include Draft Invoices', 
+        company_dependent=True,
+        help='Full risk computation')
     risk_invoice_draft_limit = fields.Monetary(
         string='Limit In Draft Invoices',
         company_dependent=True,
@@ -28,6 +30,7 @@ class ResPartner(models.Model):
         help='Total amount of invoices in Draft or Pro-forma state')
     risk_invoice_open_include = fields.Boolean(
         string='Include Open Invoices/Principal Balance',
+        company_dependent=True,
         help='Full risk computation.\n'
              'Residual amount of move lines not reconciled with the same '
              'account that is set as partner receivable and date maturity '
@@ -47,6 +50,7 @@ class ResPartner(models.Model):
     )
     risk_invoice_unpaid_include = fields.Boolean(
         string='Include Unpaid Invoices/Principal Balance',
+        company_dependent=True,
         help='Full risk computation.\n'
              'Residual amount of move lines not reconciled with the same '
              'account that is set as partner receivable and date maturity '
@@ -66,6 +70,7 @@ class ResPartner(models.Model):
     )
     risk_account_amount_include = fields.Boolean(
         string='Include Other Account Open Amount',
+        company_dependent=True,
         help='Full risk computation.\n'
              'Residual amount of move lines not reconciled with distinct '
              'account that is set as partner receivable and date maturity '
@@ -85,6 +90,7 @@ class ResPartner(models.Model):
     )
     risk_account_amount_unpaid_include = fields.Boolean(
         string='Include Other Account Unpaid Amount',
+        company_dependent=True,
         help='Full risk computation.\n'
              'Residual amount of move lines not reconciled with distinct '
              'account that is set as partner receivable and date maturity '
