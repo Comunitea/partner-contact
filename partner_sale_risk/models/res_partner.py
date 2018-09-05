@@ -9,7 +9,9 @@ class ResPartner(models.Model):
     _inherit = 'res.partner'
 
     risk_sale_order_include = fields.Boolean(
-        string='Include Sales Orders', help='Full risk computation')
+        string='Include Sales Orders', 
+        company_dependent=True,
+        help='Full risk computation')
     risk_sale_order_limit = fields.Monetary(
         string='Limit Sales Orders',
         company_dependent=True,
