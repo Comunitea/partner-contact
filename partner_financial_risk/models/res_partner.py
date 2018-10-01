@@ -217,7 +217,6 @@ class ResPartner(models.Model):
 
     @api.multi
     def _compute_risk_exception(self):
-        import ipdb; ipdb.set_trace()
         risk_field_list = self._risk_field_list()
         for partner in self.filtered('customer'):
             amount = 0.0
