@@ -20,5 +20,5 @@
         'wizard/partner_risk_exceeded_view.xml',
         'templates/assets.xml',
     ],
-    'installable': False,
+    'installable': True,
 }

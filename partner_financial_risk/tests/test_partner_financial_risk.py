@@ -76,6 +76,10 @@ class TestPartnerFinancialRisk(common.SavepointCase):
         cls.env.user.lang = False
 
     def test_invoices(self):
+        """
+        TODO, self.partner.risk_exception IS ONLY CALLED A FEW TIMES
+        THEN IT GET CACHED SO NO MORE COMPUTATION AND TESTS FAILS
+        """
         self.partner.risk_invoice_draft_include = True
         self.assertAlmostEqual(self.partner.risk_invoice_draft, 550.0)
         self.assertAlmostEqual(self.partner.risk_total, 550.0)
@@ -86,6 +90,8 @@ class TestPartnerFinancialRisk(common.SavepointCase):
         self.partner.risk_invoice_unpaid_include = True
         self.assertAlmostEqual(self.partner.risk_total, 550.0)
         self.partner.credit_limit = 100.0
+        # The line below is not triggering the compute function because
+        # it id catched
         self.assertTrue(self.partner.risk_exception)
         self.partner.credit_limit = 1100.0
         self.assertFalse(self.partner.risk_exception)

@@ -37,15 +37,15 @@
                         <group string="Specific Limits" name="risk_limits" class="o_group_col_6">
                             <group class="oe_subtotal_footer" style="float: left !important;">
                                 <field name="risk_invoice_draft_limit"
-                                       attrs="{'readonly': [('risk_allow_edit', '=', False)]}" class="oe_label_to_left"/>
+                                       attrs="{'readonly': [('risk_allow_edit', '=', False)]}" class="oe_label_to_left" widget="monetary"/>
                                 <field name="risk_invoice_open_limit"
-                                       attrs="{'readonly': [('risk_allow_edit', '=', False)]}" class="oe_label_to_left"/>
+                                       attrs="{'readonly': [('risk_allow_edit', '=', False)]}" class="oe_label_to_left" widget="monetary"/>
                                 <field name="risk_invoice_unpaid_limit"
-                                       attrs="{'readonly': [('risk_allow_edit', '=', False)]}" class="oe_label_to_left"/>
+                                       attrs="{'readonly': [('risk_allow_edit', '=', False)]}" class="oe_label_to_left" widget="monetary"/>
                                 <field name="risk_account_amount_limit"
-                                       attrs="{'readonly': [('risk_allow_edit', '=', False)]}" class="oe_label_to_left"/>
+                                       attrs="{'readonly': [('risk_allow_edit', '=', False)]}" class="oe_label_to_left" widget="monetary"/>
                                 <field name="risk_account_amount_unpaid_limit"
-                                       attrs="{'readonly': [('risk_allow_edit', '=', False)]}" class="oe_label_to_left"/>
+                                       attrs="{'readonly': [('risk_allow_edit', '=', False)]}" class="oe_label_to_left" widget="monetary"/>
                                 <field name="risk_allow_edit" invisible="1"/>
                             </group>
                         </group>

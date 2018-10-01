@@ -267,14 +267,14 @@ msgstr "Límite en facturas borrador"
 #: model:ir.model.fields,field_description:partner_financial_risk.field_res_partner_risk_invoice_open_limit
 #: model:ir.model.fields,field_description:partner_financial_risk.field_res_users_risk_invoice_open_limit
 msgid "Limit In Open Invoices/Principal Balance"
-msgstr "Límite en factures/saldo principal abierto"
+msgstr "Límite en facturas/saldo principal abierto"
 
 #. module: partner_financial_risk
 #: model:ir.model.fields,field_description:partner_financial_risk.field_res_partner_alias_risk_invoice_unpaid_limit
 #: model:ir.model.fields,field_description:partner_financial_risk.field_res_partner_risk_invoice_unpaid_limit
 #: model:ir.model.fields,field_description:partner_financial_risk.field_res_users_risk_invoice_unpaid_limit
 msgid "Limit In Unpaid Invoices/Principal Balance"
-msgstr "Límite en factures/saldo principal impagado"
+msgstr "Límite en facturas/saldo principal impagado"
 
 #. module: partner_financial_risk
 #: model:ir.model.fields,field_description:partner_financial_risk.field_res_partner_alias_risk_account_amount_limit
