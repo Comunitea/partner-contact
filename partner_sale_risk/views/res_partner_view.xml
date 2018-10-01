@@ -18,7 +18,8 @@
             <field name="risk_invoice_draft_limit" position="before">
                 <field name="risk_sale_order_limit"
                        attrs="{'readonly': [('risk_allow_edit', '=', False)]}"
-                       class="oe_label_to_left"/>
+                       class="oe_label_to_left"
+                       widget="monetary"/>
             </field>
 
         </field>
