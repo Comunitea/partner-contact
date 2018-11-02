@@ -37,18 +37,18 @@ class SaleOrder(models.Model):
     def action_confirm(self):
         if not self.env.context.get('bypass_risk', False):
             partner = self.partner_id.commercial_partner_id
-            exception_msg = ""
+            exception_msg = self._context.get('exception_msg', '')
             if partner.risk_exception:
-                exception_msg = _("Financial risk exceeded.\n")
+                exception_msg += _("Financial risk exceeded.\n")
             elif partner.risk_sale_order_limit and (
                     (partner.risk_sale_order + self.amount_total) >
                     partner.risk_sale_order_limit):
-                exception_msg = _(
+                exception_msg += _(
                     "This sale order exceeds the sales orders risk.\n")
             elif partner.risk_sale_order_include and (
                     (partner.risk_total + self.amount_total) >
                     partner.credit_limit):
-                exception_msg = _(
+                exception_msg += _(
                     "This sale order exceeds the financial risk.\n")
             if exception_msg:
                 return self.env['partner.risk.exceeded.wiz'].create({
